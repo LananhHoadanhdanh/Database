@@ -7,13 +7,13 @@ group by orderId;
 # 6. In ra các số hóa đơn, trị giá hóa đơn bán ra trong ngày 19/6/2006 và ngày 20/6/2006.
 select hoa_don.id, hoa_don.TotalPrice
 from hoa_don
-join `order` on hoa_don.id = `order`.id
+         join `order` on hoa_don.id = `order`.id
 where hoa_don.time = '2006/06/19' or hoa_don.time = '2006/06/20';
 
 # 7. In ra các số hóa đơn, trị giá hóa đơn trong tháng 6/2007, sắp xếp theo ngày (tăng dần) và trị giá của hóa đơn (giảm dần).
 select hoa_don.id, hoa_don.TotalPrice
 from hoa_don
-join `order` on hoa_don.id = `order`.id
+         join `order` on hoa_don.id = `order`.id
 where (year(hoa_don.time) = 2006 and month(hoa_don.time) = 10)
 order by TotalPrice desc ;
 
@@ -26,16 +26,16 @@ group by customer.id;
 # 10. In ra danh sách các sản phẩm (MASP,TENSP) được khách hàng có tên “Nguyen Van A” mua trong tháng 10/2006.
 select orderdetail.orderId, product.name
 from orderdetail
-join product on orderdetail.productId = product.id
-join `order` on `order`.id = orderdetail.orderId
-join customer on customer.id = `order`.customerId
+         join product on orderdetail.productId = product.id
+         join `order` on `order`.id = orderdetail.orderId
+         join customer on customer.id = `order`.customerId
 where year(time) = 2006 and month(time) = 10 and customer.name like 'Nguyen Van A'
 order by orderId;
 
 # 11. Tìm các số hóa đơn đã mua sản phẩm “Máy giặt” hoặc “Tủ lạnh”.
 select orderId
 from orderdetail
-join product on product.id = orderdetail.productId
+         join product on product.id = orderdetail.productId
 where name like 'Máy giặt' or name like 'Tủ lạnh'
 group by orderId
 order by orderId;
@@ -44,7 +44,7 @@ order by orderId;
 create view cau12_13 as
 select orderId, product.name, orderdetail.quantity
 from orderdetail
-join product on product.id = orderdetail.productId
+         join product on product.id = orderdetail.productId
 where (name like 'Máy giặt' or name like 'Tủ lạnh')
   and (orderdetail.quantity >= 10 and orderdetail.quantity <= 20)
 order by orderId;
@@ -59,15 +59,15 @@ having count(orderId) >= 2;
 
 # 15. In ra danh sách các sản phẩm (MASP,TENSP) không bán được.
 select product.id, product.name
-from product, orderdetail
-where product.id = orderdetail.productId and (id not in (select productId));
+from product
+where product.id not in (select productId from orderdetail);
 
 # 16. In ra danh sách các sản phẩm (MASP,TENSP) không bán được trong năm 2006.
 create view cau_16 as
 select orderId, productId, product.name, time
 from orderdetail
-join `order` on `order`.id = orderdetail.orderId
-join product on product.id = orderdetail.productId
+         join `order` on `order`.id = orderdetail.orderId
+         join product on product.id = orderdetail.productId
 where year(time) = 2006;
 
 select product.id, product.name
@@ -77,7 +77,7 @@ where id not in (select productId from cau_16);
 # 17. In ra danh sách các sản phẩm (MASP,TENSP) có giá >300 sản xuất bán được trong năm 2006.
 select cau_16.productId, cau_16.name, product.price
 from cau_16
-join product on cau_16.productId = product.id
+         join product on cau_16.productId = product.id
 where price > 300
 group by productId;
 
@@ -95,7 +95,7 @@ having count(orderId) = (select count(id) from san_pham_nho_hon_200);
 # 19. Tìm số hóa đơn trong năm 2006 đã mua tất cả các sản phẩm có giá < 200.
 select orderId
 from orderdetail
-join `order` on `order`.id = orderdetail.orderId
+         join `order` on `order`.id = orderdetail.orderId
 where (productId in (select id from san_pham_nho_hon_200)) and year(time) = 2006
 group by orderId
 having count(orderId) = (select count(id) from san_pham_nho_hon_200);
@@ -136,7 +136,7 @@ where TotalPrice >= all (select TotalPrice from hoa_don);
 # Tìm tên khách hàng, số lượng hóa đơn mà mỗi khách hàng đã mua
 select customer.name as `customerName`, count(`order`.id)
 from customer
-left join `order` on customer.id = `order`.customerId
+         left join `order` on customer.id = `order`.customerId
 group by customer.id;
 
 # In ra orderId, tổng số lượng sản phẩm của mỗi hóa đơn
@@ -152,8 +152,8 @@ where customer.id not in (select customerId from `order`);
 # 27. In ra danh sách 3 khách hàng (MAKH, HOTEN) mua nhiều hàng nhất (tính theo số lượng).
 select customerId, customer.name, sum(quantity)
 from orderdetail
-join `order` on `order`.id = orderdetail.orderId
-join customer on customer.id = `order`.customerId
+         join `order` on `order`.id = orderdetail.orderId
+         join customer on customer.id = `order`.customerId
 group by customerId
 order by sum(quantity) desc
 limit 3;
@@ -229,7 +229,7 @@ having count(orderId) = 3;
 create view `so lan mua hang cua khach` as
 select customerId, name, count(customerId) as `so lan mua`
 from `order`
-join customer on customer.id = `order`.customerId
+         join customer on customer.id = `order`.customerId
 group by customerId;
 
 select customerId, name
@@ -245,20 +245,20 @@ where sumtTotalPrice >= all (select sumtTotalPrice from `doanh thu 2006`);
 create view `so luong ban ra 2006` as
 select productId, sum(quantity) as `sumQTY`
 from orderdetail
-join `order` on `order`.id = orderdetail.orderId
+         join `order` on `order`.id = orderdetail.orderId
 where year(time) = 2006
 group by productId;
 
 select productId, product.name
 from `so luong ban ra 2006`
-join product on productId = product.id
+         join product on productId = product.id
 where sumQTY <= all (select sumQTY from `so luong ban ra 2006`);
 
 # 45. Trong 3 khách hàng có doanh số cao nhất, tìm khách hàng có số lần mua hàng nhiều nhất.
 create view `cau 45` as
 select hoa_don.customerId, `Ten khach hang`, sum(TotalPrice) as `Tong doanh so`, `so lan mua`
 from hoa_don
-join `so lan mua hang cua khach` on hoa_don.customerId = `so lan mua hang cua khach`.customerId
+         join `so lan mua hang cua khach` on hoa_don.customerId = `so lan mua hang cua khach`.customerId
 group by customerId
 order by `Tong doanh so` desc
 limit 3;
